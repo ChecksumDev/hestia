@@ -14,7 +14,7 @@ RUN cargo build --release
 FROM debian:buster-slim
 
 # Copy from the previous build
-COPY --from=build /hestia/target/release/hestia /usr/bin/hestia
+COPY --from=build /app/target/release/hestia /usr/bin/hestia
 
 # Run the binary
-CMD ["/usr/src/hestia"]
+CMD ["/usr/bin/hestia"]
