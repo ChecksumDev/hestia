@@ -17,7 +17,7 @@ RUN apk add --no-cache --virtual .build-deps \
 COPY . /app
 WORKDIR /app
 
-RUN rustup target add x86_64-unknown-linux-musl \
-    cargo build --release
+RUN rustup target add x86_64-unknown-linux-musl \ 
+    && cargo build --release
 
 CMD ["/app/target/release/hestia"]
