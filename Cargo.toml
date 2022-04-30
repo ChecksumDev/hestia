@@ -8,24 +8,24 @@ edition = "2021"
 chrono = { version = "0.4", features = ["serde"] }
 serde = "1.0"
 serenity = { version = "0.11", default-features = false, features = [
-    "builder",
-    "client",
-    "collector",
-    "framework",
-    "gateway",
-    "http",
-    "model",
-    "standard_framework",
-    "utils",
-    "rustls_backend",
-    "cache",
-    "absolute_ratelimits"
+  "builder",
+  "client",
+  "collector",
+  "framework",
+  "gateway",
+  "http",
+  "model",
+  "standard_framework",
+  "utils",
+  "rustls_backend",
+  "cache",
+  "absolute_ratelimits",
 ] }
 timeago = { version = "0.3", features = ["chrono"] }
 tokio = { version = "1.17", default-features = false, features = [
-    "macros",
-    "rt-multi-thread",
-    "signal"
+  "macros",
+  "rt-multi-thread",
+  "signal",
 ] }
 toml = "0.5"
 tracing = "0.1"
