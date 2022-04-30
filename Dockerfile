@@ -1,23 +1,29 @@
-FROM rust:alpine3.15
-ENTRYPOINT [ "/bin/bash" ]
+# Rust as the base image
+FROM rust:1.49 as build
 
-# trunk-ignore(hadolint/DL3018)
-RUN apk add --no-cache --virtual .build-deps \
-    ca-certificates \
-    curl \
-    gcc \
-    git \
-    glib \
-    make \
-    openssl \
-    pcre \
-    zlib \
-    && rm -rf /var/cache/apk/*
-
-COPY . /app
+# Create workspace
 WORKDIR /app
 
-RUN rustup target add x86_64-unknown-linux-musl \ 
+# Copy our manifests
+COPY ./Cargo.toml ./
+COPY ./Cargo.lock ./
+
+# Build only the dependencies to cache them
+RUN cargo build --release \
+    && rm src/*.rs
+
+# Copy the source code
+COPY ./src ./src
+
+# Build for release.
+RUN rm ./target/release/deps/hestia* \
     && cargo build --release
 
-CMD ["/app/target/release/hestia"]
+# The final base image
+FROM debian:buster-slim
+
+# Copy from the previous build
+COPY --from=build /hestia/target/release/hestia /usr/bin/hestia
+
+# Run the binary
+CMD ["/usr/src/hestia"]
