@@ -1,3 +1,4 @@
+pub mod buckets;
 mod commands;
 mod events;
 pub mod groups;
@@ -7,17 +8,18 @@ mod utils;
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use buckets::general_bucket;
 use commands::help::HELP;
 use groups::{DEV_GROUP, MISC_GROUP, STAFF_GROUP, USER_GROUP};
 
+use serenity::client::bridge::gateway::ShardManager;
 use serenity::framework::StandardFramework;
 use serenity::http::Http;
-use serenity::{client::bridge::gateway::ShardManager, framework::standard::buckets::LimitedFor};
 
 use serenity::prelude::*;
 use tracing::error;
 
-use hooks::{after, before, delay_action, dispatch_error, normal_message, unknown_command};
+use hooks::{after, before, dispatch_error, normal_message, unknown_command};
 use utils::config::Config;
 
 pub struct ShardManagerContainer;
@@ -32,7 +34,7 @@ struct Handler; // For use in events/
 async fn main() {
     tracing_subscriber::fmt::init(); // Initialize tracing
 
-    let config = Config::from_toml("config.toml").unwrap();
+    let config = Config::get_config("config.toml");
     let http = Http::new(config.token());
 
     // Get the owners of the bot from the application info
@@ -63,13 +65,7 @@ async fn main() {
         .normal_message(normal_message)
         .on_dispatch_error(dispatch_error)
         // Buckets
-        .bucket("general", |b| {
-            // Bucket for general commands
-            b.limit(3)
-                .time_span(6)
-                .limit_for(LimitedFor::User)
-                .delay_action(delay_action)
-        })
+        .bucket("general", add_bucket!(general_bucket))
         .await;
 
     // Gateway Intents
