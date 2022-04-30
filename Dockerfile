@@ -4,20 +4,11 @@ FROM rust:1.60 as build
 # Create workspace
 WORKDIR /app
 
-# Copy our manifests
-COPY ./Cargo.toml ./
-COPY ./Cargo.lock ./
-
-# Build only the dependencies to cache them
-RUN cargo build --release \
-    && rm src/*.rs
-
 # Copy the source code
-COPY ./src ./src
+COPY . /app/
 
 # Build for release.
-RUN rm ./target/release/deps/hestia* \
-    && cargo build --release
+RUN cargo build --release
 
 # The final base image
 FROM debian:buster-slim
