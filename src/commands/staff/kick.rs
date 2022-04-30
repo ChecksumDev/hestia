@@ -29,23 +29,20 @@ async fn kick(ctx: &Context, msg: &Message) -> CommandResult {
     let user_full = ctx.http.get_user(user.0).await?;
 
     if user_full.id == msg.author.id {
-        msg.channel_id
-            .say(&ctx, "Why would you want to kick yourself?")
+        msg.reply(&ctx, "Why would you want to kick yourself?")
             .await?;
         return Ok(());
     }
 
     if user_full.id == ctx.cache.current_user().id {
-        msg.channel_id
-            .say(&ctx, "I'm sorry, Dave. I'm afraid I can't do that.")
+        msg.reply(&ctx, "I'm sorry, Dave. I'm afraid I can't do that.")
             .await?;
         return Ok(());
     }
 
     let reason = args.rest();
     if reason.is_empty() {
-        msg.channel_id
-            .say(&ctx, "Please provide a reason for the kick.")
+        msg.reply(&ctx, "Please provide a reason for the kick.")
             .await?;
 
         return Ok(());

@@ -1,3 +1,4 @@
+use chrono::Utc;
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
 use serenity::model::prelude::*;
@@ -23,6 +24,8 @@ async fn avatar(ctx: &Context, msg: &Message) -> CommandResult {
                     .color(0x7289da)
                     .title(format!("{}'s avatar", user.name))
                     .description(format!("[Click here to open]({})", avatar))
+                    .footer(|f| f.text(format!("Requested by {}", msg.author.name)))
+                    .timestamp(Utc::now().to_rfc3339())
             })
         })
         .await?;
