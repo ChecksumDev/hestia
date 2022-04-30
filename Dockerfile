@@ -1,5 +1,5 @@
 # Rust as the base image
-FROM rust:1.49 as build
+FROM rust:1.60 as build
 
 # Create workspace
 WORKDIR /app
