@@ -5,7 +5,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+bson = "2.2"
 chrono = { version = "0.4", features = ["serde"] }
+mongodb = "2.2"
+rand = { version = "0.8", features = ["std_rng"] }
+reqwest = { version = "0.11" }
 serde = "1.0"
 serenity = { version = "0.11", default-features = false, features = [
   "builder",
