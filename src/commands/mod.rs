@@ -1,6 +1,5 @@
-pub mod dev {
-    #[path = "shutdown.rs"]
-    pub mod shutdown;
+pub mod admin {
+    // #[path("admin.rs")]
 }
 
 pub mod staff {
@@ -15,6 +14,35 @@ pub mod staff {
     pub mod unban;
 }
 
+pub mod fun {
+    #[path = "coinflip.rs"]
+    pub mod coinflip;
+
+    #[path = "8ball.rs"]
+    pub mod eightball;
+
+    #[path = "roll.rs"]
+    pub mod roll;
+
+    #[path = "dadjoke.rs"]
+    pub mod dadjoke;
+
+    // #[path = "slots.rs"]
+    // pub mod slots;
+
+    // #[path = "rps.rs"]
+    // pub mod rps;
+
+    #[path = "cat.rs"]
+    pub mod cat;
+
+    #[path = "dog.rs"]
+    pub mod dog;
+
+    #[path = "waifu.rs"]
+    pub mod waifu;
+}
+
 pub mod user {
     #[path = "avatar.rs"]
     pub mod avatar;
@@ -27,7 +55,11 @@ pub mod user {
 pub mod misc {
     #[path = "ping.rs"]
     pub mod ping;
-    // TODO: Help, ping, etc
 }
 
 pub mod help;
+
+pub mod dev {
+    #[path = "shutdown.rs"]
+    pub mod shutdown;
+}
