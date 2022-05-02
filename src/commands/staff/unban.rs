@@ -1,5 +1,5 @@
 use serenity::framework::standard::macros::command;
-use serenity::framework::standard::{Args, CommandResult, Delimiter};
+use serenity::framework::standard::{Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use tracing::info;
@@ -10,10 +10,7 @@ use tracing::info;
 #[usage("<user>")]
 #[example("@user#1234")]
 #[bucket("moderation")]
-async fn unban(ctx: &Context, msg: &Message) -> CommandResult {
-    let mut args = Args::new(&msg.content, &[Delimiter::Single(' ')]);
-    args.advance();
-
+async fn unban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user = match args.single::<UserId>() {
         Ok(user) => user,
         Err(_) => {

@@ -1,5 +1,5 @@
 use serenity::framework::standard::macros::command;
-use serenity::framework::standard::{Args, CommandResult, Delimiter};
+use serenity::framework::standard::{Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use tracing::info;
@@ -10,10 +10,7 @@ use tracing::info;
 #[usage("<user> [delete message days] (reason)")]
 #[example("@user#1234 7 spamming")]
 #[bucket("moderation")]
-async fn ban(ctx: &Context, msg: &Message) -> CommandResult {
-    let mut args = Args::new(&msg.content, &[Delimiter::Single(' ')]);
-    args.advance();
-
+async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user = match args.single::<UserId>() {
         Ok(user) => user,
         Err(_) => {
@@ -49,9 +46,19 @@ async fn ban(ctx: &Context, msg: &Message) -> CommandResult {
         return Ok(());
     }
 
-    let guild = ctx.http.get_guild(msg.guild_id.unwrap().0).await?;
+    let guild = ctx.http.get_guild(msg.guild_id.unwrap().0).await?; // This cannot fail since we are checking for a guild in groups.rs;
 
-    match guild.ban_with_reason(ctx, user, days, reason).await {
+    // Check if the user is in the guild.
+    let member = match guild.member(ctx, user).await {
+        Ok(member) => member,
+        Err(_) => {
+            msg.react(&ctx, '\u{1f44b}').await?;
+            msg.reply(&ctx, "That user is not in this guild.").await?;
+            return Ok(());
+        }
+    };
+
+    match member.ban_with_reason(ctx, days, reason).await {
         Ok(_) => {
             msg.react(&ctx, '\u{1f44b}').await?;
 

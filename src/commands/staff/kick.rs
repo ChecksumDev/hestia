@@ -1,8 +1,8 @@
 use serenity::framework::standard::macros::command;
-use serenity::framework::standard::{Args, CommandResult, Delimiter};
+use serenity::framework::standard::{Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use tracing::info;
+
 
 #[command]
 #[description("Kicks a user from the server.")]
@@ -10,18 +10,11 @@ use tracing::info;
 #[usage("<user> [reason]")]
 #[example("@user#1234 spamming")]
 #[bucket("moderation")]
-async fn kick(ctx: &Context, msg: &Message) -> CommandResult {
-    let mut args = Args::new(&msg.content, &[Delimiter::Single(' ')]);
-    args.advance();
-
+async fn kick(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user = match args.single::<UserId>() {
         Ok(user) => user,
         Err(_) => {
-            info!("No user specified.");
-            info!("{:?}", args);
-            msg.channel_id
-                .say(&ctx, "Please mention a user to kick.")
-                .await?;
+            msg.reply(&ctx, "Please mention a user to kick.").await?;
             return Ok(());
         }
     };
@@ -50,7 +43,17 @@ async fn kick(ctx: &Context, msg: &Message) -> CommandResult {
 
     let guild = ctx.http.get_guild(msg.guild_id.unwrap().0).await?; // This cannot fail since we are checking for a guild in groups.rs;
 
-    match guild.kick_with_reason(ctx, user, reason).await {
+    // Check if the user is in the guild.
+    let member = match guild.member(ctx, user).await {
+        Ok(member) => member,
+        Err(_) => {
+            msg.react(&ctx, '\u{1f44b}').await?;
+            msg.reply(&ctx, "That user is not in this guild.").await?;
+            return Ok(());
+        }
+    };
+
+    match member.kick_with_reason(ctx, reason).await {
         Ok(_) => {
             msg.react(&ctx, '\u{1f44b}').await?;
 
