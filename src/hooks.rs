@@ -3,7 +3,7 @@ use serenity::{
     framework::standard::{macros::hook, CommandResult, DispatchError},
     model::channel::Message,
 };
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 
 #[hook]
 pub async fn before(_ctx: &Context, msg: &Message, command_name: &str) -> bool {
@@ -23,7 +23,7 @@ pub async fn after(
     command_result: CommandResult,
 ) {
     match command_result {
-        Ok(()) => info!("Processed command '{}'", command_name),
+        Ok(()) => debug!("Processed command '{}'", command_name),
         Err(why) => error!("Command '{}' returned error {:?}", command_name, why),
     }
 }
@@ -40,8 +40,10 @@ pub async fn normal_message(_ctx: &Context, _msg: &Message) {
 
 #[hook]
 pub async fn delay_action(ctx: &Context, msg: &Message) {
-    // You may want to handle a Discord rate limit if this fails.
-    let _ = msg.react(ctx, '⏱').await;
+    let msg = msg.react(ctx, '⏱').await;
+    if let Err(why) = msg {
+        error!("Failure adding reaction to delay message: {:?}", why);
+    }
 }
 
 #[hook]
