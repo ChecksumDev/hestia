@@ -4,11 +4,29 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
+use serenity::prelude::TypeMapKey;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct MongoConfig {
+    pub uri: String,
+}
+
+// #[derive(Debug, Clone, Deserialize, Serialize)]
+// pub struct ApiConfig {
+//     pub cat_api_key: String,
+//     pub dog_api_key: String,
+// }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     token: String,
     prefix: String,
+    mongo: MongoConfig,
+    // api: ApiConfig,
+}
+
+impl TypeMapKey for Config {
+    type Value = Config;
 }
 
 impl Config {
@@ -109,6 +127,15 @@ impl Config {
     pub fn token(&self) -> &str {
         &self.token
     }
+
+    /// Returns the MongoDB URI.
+    /// # Examples
+    /// ```
+    /// let uri = config.mongo_uri();
+    /// ```
+    pub fn mongo_uri(&self) -> &str {
+        &self.mongo.uri
+    }
 }
 
 impl Default for Config {
@@ -116,6 +143,14 @@ impl Default for Config {
         Config {
             token: String::new(),
             prefix: String::from("~"),
+            mongo: MongoConfig {
+                uri: String::from("mongodb://localhost:27017/"),
+            },
+            // api: ApiConfig {
+            //     cat_api_key: String::new(),
+            //     dog_api_key: String::new(),
+            //     fox_api_key: String::new(),
+            // },
         }
     }
 }

@@ -10,14 +10,15 @@ use std::sync::Arc;
 
 use buckets::general_bucket;
 use commands::help::HELP;
-use groups::{DEV_GROUP, MISC_GROUP, STAFF_GROUP, USER_GROUP};
+use groups::{DEV_GROUP, FUN_GROUP, MISC_GROUP, STAFF_GROUP, USER_GROUP};
+use mongodb::{options::ClientOptions as MongoClientOptions, Client as MongoClient};
 
 use serenity::client::bridge::gateway::ShardManager;
 use serenity::framework::StandardFramework;
 use serenity::http::Http;
 
 use serenity::prelude::*;
-use tracing::error;
+use tracing::{error, info};
 
 use hooks::{after, before, dispatch_error, normal_message, unknown_command};
 use utils::config::Config;
@@ -26,6 +27,12 @@ pub struct ShardManagerContainer;
 
 impl TypeMapKey for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
+}
+
+pub struct Database;
+
+impl TypeMapKey for Database {
+    type Value = Arc<Mutex<MongoClient>>;
 }
 
 struct Handler; // For use in events/
@@ -56,6 +63,7 @@ async fn main() {
         // Groups
         .group(&USER_GROUP)
         .group(&STAFF_GROUP)
+        .group(&FUN_GROUP)
         .group(&MISC_GROUP)
         .group(&DEV_GROUP)
         // Hooks
@@ -73,6 +81,19 @@ async fn main() {
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
 
+    // Database
+    let client_options = MongoClientOptions::parse(config.mongo_uri()).await.unwrap();
+
+    let mongo_client = match MongoClient::with_options(client_options) {
+        Ok(mongo) => {
+            info!("Successfully connected to MongoDB");
+            mongo
+        }
+        Err(_) => {
+            panic!("Could not connect to MongoDB");
+        }
+    };
+
     // Client Configuration
     let mut client = Client::builder(config.token(), intents)
         .framework(framework)
@@ -83,6 +104,7 @@ async fn main() {
     {
         let mut data = client.data.write().await;
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
+        data.insert::<Database>(Arc::new(Mutex::new(mongo_client)));
     }
 
     // Shard Manager
