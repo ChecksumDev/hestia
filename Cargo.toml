@@ -26,7 +26,7 @@ serenity = { version = "0.11", default-features = false, features = [
   "absolute_ratelimits",
 ] }
 timeago = { version = "0.3", features = ["chrono"] }
-tokio = { version = "1.17", default-features = false, features = [
+tokio = { version = "1.18", default-features = false, features = [
   "macros",
   "rt-multi-thread",
   "signal",
